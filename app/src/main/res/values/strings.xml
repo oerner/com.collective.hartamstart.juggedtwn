@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Jugge DTWN</string>
+    <string name="password">Passwort:</string>
+
+    <string name="title_activity_bild_anzeigen">BildAnzeigen</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+</resources>
