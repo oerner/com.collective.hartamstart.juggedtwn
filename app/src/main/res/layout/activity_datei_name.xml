@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@android:color/black"
+    android:id="@+id/activity_datei_name"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    tools:context="com.collective.hartamstart.juggedtwn.DateiName">
+
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/nameLayout"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/textView3"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_horizontal"
+                            android:text="Datum und Gremium wählen"
+                            android:textColor="@android:color/holo_red_dark"
+                            android:textSize="36sp" />
+
+                        <Button
+                            android:id="@+id/datumButton"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textColor="@android:color/holo_red_dark"
+                            android:background="@android:color/black" />
+
+                        <TableRow
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="center_horizontal">
+
+                                <CheckBox
+                                    android:id="@+id/checkStandard"
+                                    android:layout_width="wrap_content"
+                                    android:textColor="@android:color/holo_red_dark"
+                                    android:layout_height="wrap_content"
+                                    android:layout_alignBottom="@+id/calendarView"
+                                    android:layout_alignLeft="@+id/calendarView"
+                                    android:layout_alignStart="@+id/calendarView"
+                                    android:checked="true"
+                                    android:text="Standard" />
+
+                                <CheckBox
+                                    android:id="@+id/checkSonstige"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textColor="@android:color/holo_red_dark"
+                                    android:layout_alignBottom="@+id/calendarView"
+                                    android:layout_alignParentEnd="true"
+                                    android:layout_alignParentRight="true"
+                                    android:checked="false"
+                                    android:text="Sonstiges" />
+
+                                <CheckBox
+                                    android:id="@+id/checkOpenAir"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textColor="@android:color/holo_red_dark"
+                                    android:layout_alignBottom="@+id/calendarView"
+                                    android:layout_centerHorizontal="true"
+                                    android:checked="false"
+                                    android:text="OpenAir" />
+                        </TableRow>
+
+                        <EditText
+                            android:id="@+id/sonstigeText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerHorizontal="true"
+                            android:layout_centerVertical="true"
+                            android:ems="10"
+                            android:text="Sonder Gremium"
+                            android:textColor="@android:color/holo_red_dark"
+                            tools:textAlignment="center" />
+
+                        <TableRow
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent" >
+
+                                <TextView
+                                    android:id="@+id/textView4"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Seite:  " />
+
+                                <EditText
+                                    android:id="@+id/seite"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:inputType="number"
+                                    android:layout_centerHorizontal="true"
+                                    android:layout_centerVertical="true"
+                                    android:ems="10"
+                                    android:text="1"
+                                    android:textColor="@android:color/holo_red_dark"
+                                    tools:textAlignment="center" />
+                        </TableRow>
+
+                        <Button
+                            android:text="OK"
+                            android:textColor="@android:color/holo_red_dark"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="36sp"
+                            android:background="@android:color/black"
+                            android:layout_centerHorizontal="true"
+                            android:id="@+id/nameOkButton" />
+
+                </LinearLayout>
+        </ScrollView>
+
+</RelativeLayout>

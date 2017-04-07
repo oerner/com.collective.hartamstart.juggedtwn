@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/JuggeDTWN.iml" filepath="$PROJECT_DIR$/JuggeDTWN.iml" />
       <module fileurl="file://$PROJECT_DIR$/android-library-master/android-library-master.iml" filepath="$PROJECT_DIR$/android-library-master/android-library-master.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/com.collective.hartamstart.juggedtwn.iml" filepath="$PROJECT_DIR$/com.collective.hartamstart.juggedtwn.iml" />
     </modules>
   </component>
 </project>

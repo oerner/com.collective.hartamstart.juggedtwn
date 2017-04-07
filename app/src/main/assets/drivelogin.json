@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "jugge-dorfen",
+  "private_key_id": "da784d09dc5471502449376f32133416d7eb70f9",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDRPJRXWHBbcljk\nGEo9D/4e8Nh2HD8JfmFpXIi/xKdEPqndh1mZUjjmf5xaZ8jADwYC0I2/t+hktkZZ\ne3qAADNWVedcSbasyu9lQ6NGhjZ5IPzIdWuBm9t9fsGc+ASvi+LpLHvkYJlbrk3O\nldtUVROUh7VtwPmFIlaXg90eRUwEHmwWJ4PMQNBBO+PrHpRvOjoCPNdrtk+0IsQk\niKrmjC8VtLqEjWE19BNBc5FYkt5+4DtJfUcpm1X0v3UJCKWzvWmnOGs4htrlIM4v\n7ViVvVarEP/Gtdb07onv3Ucrozn7ad8Fas7sPTmmYBvqQ0XJE4atvYsXwalN1cpX\nI5ds+CYfAgMBAAECggEABTxm2ei0pxUtdEfHU8/apBuSzyHV0f7/oQtXwLTDGsoW\nphyE+Xk9Q0deOkTumR/HHrrpUSrg/eQxzntwjVNz9W0g5QZTM+/AHeCbbWBebJmO\nudV2Yz/rNjC915e9RkdR3lPmpchlDg5GlCzb2DhozQa4W47Ar7w0PoZmOiOxy0iM\nBItq1/BNN1FdClb7dfEfhgZHp0SDvofkpi9JsOvu5MjtWTAEn6aJR6/axM8SSHk7\n2SrAi8njZ3pSXSwRWK8peGtjdhW0j4G/897y8pOJe0+G/4R1Qyrt1aTyYHlcgp/C\nkwJfu8T1RyXKx6WFXlQLtgiXu44gZSp3KeEoPwNOgQKBgQDwHrBROHI0fX6lJf3p\nI3NBLbsBnMwl13Ad7kKMnIC+5UTvpp1MI37+Nzcuv5JGKi10CaFEV93fwrYnxxDB\nIY3W0luNiR6T42xgc9o9faZ2+OSJoSXZGdpNk/wG/dl/UFM9K7H+14PFxyH0Uilf\n9RKXhJPfs6CEHE6Y4Z8o9S8TGQKBgQDfEwbnIG2l0HLjB+8PrbciLEPCNemxgPgV\np0xhsNDGPjOEmuouGXTv2provO4BTKgdCmFc9ZMhEKyawtZoMzL7y1zic0ilGbID\n9bCi+Rs8SR5dUfqkAIM4hed9xY5CKcwkika+40olzoeIJmpJITUQjaRmD4vsfAIl\nirJN+Rqh9wKBgQDnAB8PhAYaiUB1EH+c8gXHBn+JpZagMQojQTu0mjshat9OzjM1\nNFDPr77esl2+MoVXxIvoe79vrJog2lk781PI/sYk+2z3SSrR/6JM1bx3aCo0XVtT\n6JMjXuJut3euC1CI4Kh0SlDyzAfWS9SSA+rG6Tx5UQ1zCuhyG1xKwtVuwQKBgBYM\nvWvvKqdvOUvzps+37hg0o+X4ikb/ZoZNaSFm5twRneoHngo8ffCPfSxwMF50g1GL\niyAzLf3gtg7+H09hcDKvYVkI6C9ZoNz/Vhxl3ylQWO4Egm/flRjrM3ydIHitxP3/\npQqNUPD3vzHYCj18SNCAD7X+52fSwiuP0Bwg+V71AoGBAK9PoPy/T3ryxVGPJ6P2\nh5/TDx+EtbCJtqzpMAquXLffk/r2pGiRN6r0Mhf1zWj71wxUGkbNp4dFFbUlb3CN\nBZSBaOq8sZW/L51rpCDoyN/IrAFJYR2Q85dcO3gnnqmkxaDZGPT36zKwQ7NLlViU\naAsiggd37B6gRN+zgII9Gsq1\n-----END PRIVATE KEY-----\n",
+  "client_email": "jz-dorfen-user@jugge-dorfen.iam.gserviceaccount.com",
+  "client_id": "107412204061881351934",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://accounts.google.com/o/oauth2/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/jz-dorfen-user%40jugge-dorfen.iam.gserviceaccount.com"
+}

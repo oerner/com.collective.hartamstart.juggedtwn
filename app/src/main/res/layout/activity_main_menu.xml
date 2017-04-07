@@ -17,7 +17,6 @@
         android:layout_height="wrap_content"
         android:inputType="textPassword"
         android:ems="10"
-        android:text="1860"
         android:layout_centerVertical="true"
         android:textColor="@android:color/holo_red_dark"
         android:layout_centerHorizontal="true"

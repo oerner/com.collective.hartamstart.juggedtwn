@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "34327196325",
+    "firebase_url": "https://jugge-dorfen.firebaseio.com",
+    "project_id": "jugge-dorfen",
+    "storage_bucket": "jugge-dorfen.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:34327196325:android:c8735361613b1255",
+        "android_client_info": {
+          "package_name": "com.collective.hartamstart.juggedtwn"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "34327196325-381178elbdjj907pjrj3o6ptsn0dcde4.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAKl1OHotRRzBkXVhpmM_YlRTLYC5TP77I"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
