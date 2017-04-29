@@ -5,6 +5,7 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 
 import com.google.api.client.http.HttpTransport;
+import com.google.api.client.http.InputStreamContent;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 
@@ -18,19 +19,31 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.AssetFileDescriptor;
+import android.content.res.AssetManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.crypto.Cipher;
+import javax.crypto.CipherInputStream;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.SecretKeySpec;
+
 import pub.devrel.easypermissions.EasyPermissions;
+
+import static com.collective.hartamstart.juggedtwn.R.id.passwortFeld;
 
 public class HoleProtokolle extends Activity
         implements EasyPermissions.PermissionCallbacks {
@@ -40,11 +53,15 @@ public class HoleProtokolle extends Activity
     static final int REQUEST_AUTHORIZATION = 1001;
     static final int REQUEST_GOOGLE_PLAY_SERVICES = 1002;
 
+    private String passwort;
+
     private static final String[] SCOPES = { DriveScopes.DRIVE_READONLY };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        passwort = getIntent().getStringExtra("pw");
 
         mProgress = new ProgressDialog(this);
         mProgress.setMessage("Bitte warten ...");
@@ -62,7 +79,7 @@ public class HoleProtokolle extends Activity
             setResult(RESULT_CANCELED, i);
 
             mProgress.hide();
-            finish();
+            //finish();
         } else {
             new HoleProtokolle.MakeRequestTask().execute();
         }
@@ -78,7 +95,7 @@ public class HoleProtokolle extends Activity
                     Intent i = new Intent();
                     i.putExtra("fehler", "Installiere Google Services!");
                     setResult(RESULT_CANCELED, i);
-                    mProgress.hide();
+                    //mProgress.hide();
                 } else {
                     testeUmgebung();
                 }
@@ -155,7 +172,17 @@ public class HoleProtokolle extends Activity
             JacksonFactory jsonFactory = new JacksonFactory();
 
             try {
-                InputStream privateJsonStream = getAssets().open("drivelogin.json");
+                AssetManager assManager = getApplicationContext().getAssets();
+                AssetFileDescriptor fileDescriptor = assManager.openFd("drivelogin.json.encrypted");
+                FileInputStream fis = fileDescriptor.createInputStream();
+
+                SecretKeySpec sks = new SecretKeySpec(passwort.getBytes(), "AES");
+                Cipher cipher = Cipher.getInstance("AES");
+                cipher.init(Cipher.DECRYPT_MODE, sks);
+                //CipherInputStream cis = new CipherInputStream(fis, cipher);
+
+                InputStream privateJsonStream = new CipherInputStream(fis, cipher);
+
                 GoogleCredential serviceAccountCredential =
                         new GoogleCredential().fromStream(privateJsonStream).createScoped(Arrays.asList(SCOPES));
 
@@ -163,7 +190,9 @@ public class HoleProtokolle extends Activity
                         .setHttpRequestInitializer(serviceAccountCredential)
                         .build();
             }
-            catch (IOException e){
+            catch (Exception e)
+            {
+                mProgress.setMessage(e.getMessage());
             }
         }
 
@@ -193,7 +222,7 @@ public class HoleProtokolle extends Activity
                     i.putExtra("fehler", "arraylists sind leer");
                     setResult(RESULT_CANCELED, i);
                 }
-                mProgress.hide();
+                //mProgress.hide();
                 finish();
                 return holeIds();
             } catch (Exception e) {
@@ -249,7 +278,6 @@ public class HoleProtokolle extends Activity
             }
             catch (IOException e)
             {
-
             }
             return namen;
         }

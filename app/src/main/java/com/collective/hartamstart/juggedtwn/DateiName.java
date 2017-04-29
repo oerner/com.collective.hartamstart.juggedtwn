@@ -3,9 +3,10 @@ package com.collective.hartamstart.juggedtwn;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
-import android.app.DialogFragment;
-import android.app.Fragment;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentActivity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.support.v7.app.ActionBar;
@@ -49,6 +50,9 @@ public class DateiName extends AppCompatActivity {
 
     private String datum;
 
+    public static final String PREFS_NAME = "einstellungen";
+    private SharedPreferences settings;
+
     private String art = "Gremium";
 
     @Override
@@ -60,11 +64,19 @@ public class DateiName extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         actionBar.setBackgroundDrawable(new ColorDrawable(Color.RED));
 
+        settings = getSharedPreferences(PREFS_NAME, 0);
+
         c = Calendar.getInstance();
 
         tag = c.get(Calendar.DAY_OF_MONTH);
         monat = c.get(Calendar.MONTH );
         jahr = c.get(Calendar.YEAR);
+
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putInt("jahr", jahr);
+        editor.putInt("tag", tag);
+        editor.putInt("monat", monat);
+        editor.commit();
 
         datumButton = (Button) findViewById(R.id.datumButton);
 
@@ -108,13 +120,17 @@ public class DateiName extends AppCompatActivity {
         });
     }
 
+    public void showDatePickerDialog(View v)
+    {
+        DialogFragment newFragment = new DatePickerFragment();
+        newFragment.show(getSupportFragmentManager(), "datePicker");
+    }
 
     public void datumToString()
     {
-        datum = String.valueOf(tag) + "." + String.valueOf(monat + 1) + "." + String.valueOf(jahr).charAt(2) + String.valueOf(jahr).charAt(3);
+        datum = String.valueOf(settings.getInt("tag", 11)) + "." + String.valueOf(settings.getInt("monat", 8) + 1) + "." + String.valueOf(settings.getInt("jahr", 2001)).charAt(2) + String.valueOf(settings.getInt("jahr", 2001)).charAt(3);
         datumButton.setText("▼ " + datum + " ▼");
     }
-
 
     public void standard()
     {
@@ -151,6 +167,7 @@ public class DateiName extends AppCompatActivity {
         }
         Intent i = new Intent();
         i.putExtra("pfad", pfad);
+        datumToString();
         String name = art + "_" + datum + "_SEITE_" + seite.getText().toString() + ".jpg";
         i.putExtra("dateiNameFertig", name);
         setResult(RESULT_OK, i);

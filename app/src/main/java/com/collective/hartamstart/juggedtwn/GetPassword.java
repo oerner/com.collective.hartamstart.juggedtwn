@@ -1,35 +1,44 @@
 package com.collective.hartamstart.juggedtwn;
 
-        import com.google.android.gms.common.ConnectionResult;
-        import com.google.android.gms.common.GoogleApiAvailability;
-        import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 
-        import com.google.api.client.http.HttpTransport;
-        import com.google.api.client.http.javanet.NetHttpTransport;
-        import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
 
-        import com.google.api.services.drive.Drive;
-        import com.google.api.services.drive.DriveScopes;
+import com.google.api.services.drive.Drive;
+import com.google.api.services.drive.DriveScopes;
+import com.google.api.services.drive.model.File;
+import com.google.api.services.drive.model.FileList;
 
-        import android.app.Activity;
-        import android.app.Dialog;
-        import android.app.ProgressDialog;
-        import android.content.Context;
-        import android.content.Intent;
-        import android.net.ConnectivityManager;
-        import android.net.NetworkInfo;
-        import android.os.AsyncTask;
-        import android.os.Bundle;
-        import android.support.annotation.NonNull;
+import android.app.Activity;
+import android.app.Dialog;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.content.res.AssetFileDescriptor;
+import android.content.res.AssetManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
 
-        import java.io.ByteArrayOutputStream;
-        import java.io.IOException;
-        import java.io.InputStream;
-        import java.io.OutputStream;
-        import java.util.Arrays;
-        import java.util.List;
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.List;
 
-        import pub.devrel.easypermissions.EasyPermissions;
+import javax.crypto.Cipher;
+import javax.crypto.CipherInputStream;
+import javax.crypto.spec.SecretKeySpec;
+
+import pub.devrel.easypermissions.EasyPermissions;
 
 public class GetPassword extends Activity
         implements EasyPermissions.PermissionCallbacks {
@@ -42,6 +51,10 @@ public class GetPassword extends Activity
     static final int ADMIN_REEQUEST = 2000;
     static final int USER_REQUEST = 2001;
 
+    private String passwort;
+    private String userPW;
+    private String userName;
+
     private static final String[] SCOPES = { DriveScopes.DRIVE_READONLY };
 
     /**
@@ -51,6 +64,12 @@ public class GetPassword extends Activity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Intent i = getIntent();
+
+        passwort = i.getStringExtra("pw");
+        userName = i.getStringExtra("name");
+        userPW = i.getStringExtra("pass");
 
         mProgress = new ProgressDialog(this);
         mProgress.setMessage("Bitte warten ...");
@@ -215,7 +234,7 @@ public class GetPassword extends Activity
      * An asynchronous task that handles the Drive API call.
      * Placing the API calls in their own task ensures the UI stays responsive.
      */
-    private class MakeRequestTask extends  AsyncTask<Void, Void, String[]>{
+    private class MakeRequestTask extends  AsyncTask<Void, Void, String>{
         private com.google.api.services.drive.Drive mService = null;
         private Exception mLastError = null;
 
@@ -225,7 +244,17 @@ public class GetPassword extends Activity
             JacksonFactory jsonFactory = new JacksonFactory();
 
             try {
-                InputStream privateJsonStream = getAssets().open("drivelogin.json");
+                AssetManager assManager = getApplicationContext().getAssets();
+                AssetFileDescriptor fileDescriptor = assManager.openFd("drivelogin.json.encrypted");
+                FileInputStream fis = fileDescriptor.createInputStream();
+
+                SecretKeySpec sks = new SecretKeySpec(passwort.getBytes(), "AES");
+                Cipher cipher = Cipher.getInstance("AES");
+                cipher.init(Cipher.DECRYPT_MODE, sks);
+                //CipherInputStream cis = new CipherInputStream(fis, cipher);
+
+                InputStream privateJsonStream = new CipherInputStream(fis, cipher);
+
                 GoogleCredential serviceAccountCredential =
                         new GoogleCredential().fromStream(privateJsonStream).createScoped(Arrays.asList(SCOPES));
 
@@ -233,7 +262,7 @@ public class GetPassword extends Activity
                         .setHttpRequestInitializer(serviceAccountCredential)
                         .build();
             }
-            catch (IOException e){
+            catch (Exception e){
             }
         }
 
@@ -242,10 +271,12 @@ public class GetPassword extends Activity
          * @param params no parameters needed for this task.
          */
         @Override
-        protected String[] doInBackground(Void... params) {
+        protected String doInBackground(Void... params) {
             try {
                 Intent i = new Intent();
-                i.putExtra("pw", getPassword());
+                i.putExtra("pwGeholt", getPassword());
+                i.putExtra("user", userName);
+                i.putExtra("pwGetippt", userPW);
                 setResult(RESULT_OK, i);
                 mProgress.hide();
                 finish();
@@ -258,16 +289,33 @@ public class GetPassword extends Activity
             }
         }
 
-        public String[] getPassword()
+        public String getPassword()
         {
-            String userfileId = "13FTOwS6DYbTlvsZCrd6aJNZ0QSwxbEnRGGW3aMdxq6s";
-            String adminfileId = "19olX92WCkLJPiePMc1WjK4QRzjj4Z3nN-sAZCU8Ag-8";
-            String pws[] = new String[2];
+            String requ = "name='" + userName + "'";
+            String fileId = null;
+            try {
+                FileList result = mService.files().list()
+                        .setQ(requ)
+                        .setFields("nextPageToken, files(id, name)")
+                        .execute();
+                List<File> files = result.getFiles();
+                if (files != null) {
+                    for (File file : files) {
+                        fileId = file.getId();
+                    }
+                }
+            }
+            catch (IOException e)
+            {
+                fileId = null;
+                Intent i = new Intent();
+                i.putExtra("fehler", "Falscher Benutzer");
+                setResult(RESULT_CANCELED);
+                finish();
+                //mProgress.setMessage(e.getMessage());
+            }
 
-            pws[0] = holen(userfileId);
-            pws[1] = holen(adminfileId);
-
-            return pws;
+            return holen(fileId);
         }
 
         public String holen(String fileId)
@@ -288,7 +336,7 @@ public class GetPassword extends Activity
         }
 
         @Override
-        protected void onPostExecute(String[] output) {
+        protected void onPostExecute(String output) {
             finish();
         }
     }

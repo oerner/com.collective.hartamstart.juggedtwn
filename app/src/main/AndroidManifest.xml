@@ -17,8 +17,9 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainMenu"
-            android:configChanges="keyboardHidden|orientation|screenSize" >
+        <activity
+            android:name=".MainMenu"
+            android:configChanges="keyboardHidden|orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -31,31 +32,15 @@
         <activity
             android:name=".ProtokollFenster"
             android:configChanges="keyboardHidden|orientation|screenSize" />
-
-        <activity
-            android:name=".BildAnzeigen"
-            android:configChanges="keyboardHidden|orientation|screenSize" />
-
-        <activity
-            android:name=".GetPassword"
-            android:configChanges="keyboardHidden|orientation|screenSize" />
-
         <activity
             android:name=".HoleProtokolle"
             android:configChanges="keyboardHidden|orientation|screenSize" />
-
-        <activity
-            android:name=".TestAPI"
-            android:configChanges="keyboardHidden|orientation|screenSize" />
-
         <activity
             android:name=".UploadActivity"
             android:configChanges="keyboardHidden|orientation|screenSize" />
-
         <activity
             android:name=".DateiName"
             android:configChanges="keyboardHidden|orientation|screenSize" />
-
         <activity
             android:name=".DownloadFile"
             android:configChanges="keyboardHidden|orientation|screenSize" />
@@ -69,6 +54,9 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
+
+        <activity android:name=".Login" />
+        <activity android:name=".GetPassword"></activity>
     </application>
 
 </manifest>

@@ -5,6 +5,9 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.AssetFileDescriptor;
+import android.content.res.AssetManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -22,11 +25,16 @@ import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.File;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.crypto.Cipher;
+import javax.crypto.CipherInputStream;
+import javax.crypto.spec.SecretKeySpec;
 
 import pub.devrel.easypermissions.EasyPermissions;
 
@@ -38,12 +46,16 @@ public class UploadActivity extends Activity
     static final int REQUEST_AUTHORIZATION = 1001;
     static final int REQUEST_GOOGLE_PLAY_SERVICES = 1002;
 
+    public static final String PREFS_NAME = "einstellungen";
+
+    private SharedPreferences settings;
+
     private static final String[] SCOPES = { DriveScopes.DRIVE };
 
     private String fileName;
+    private String passwort;
 
     private java.io.File pfad;
-
 
 
     @Override
@@ -53,8 +65,11 @@ public class UploadActivity extends Activity
 
         Intent i = getIntent();
 
+        settings = getSharedPreferences(PREFS_NAME, 0);
+
         pfad = (java.io.File)getIntent().getExtras().get("pfad");
         fileName = i.getStringExtra("fertigerName");
+        passwort = i.getStringExtra("pw");
 
         mProgress = new ProgressDialog(this);
         mProgress.setMessage(fileName);
@@ -165,14 +180,24 @@ public class UploadActivity extends Activity
             JacksonFactory jsonFactory = new JacksonFactory();
 
             try {
-                InputStream privateJsonStream = getAssets().open("drivelogin.json");
+                AssetManager assManager = getApplicationContext().getAssets();
+                AssetFileDescriptor fileDescriptor = assManager.openFd("drivelogin.json.encrypted");
+                FileInputStream fis = fileDescriptor.createInputStream();
+
+                SecretKeySpec sks = new SecretKeySpec(passwort.getBytes(), "AES");
+                Cipher cipher = Cipher.getInstance("AES");
+                cipher.init(Cipher.DECRYPT_MODE, sks);
+                //CipherInputStream cis = new CipherInputStream(fis, cipher);
+
+                InputStream privateJsonStream = new CipherInputStream(fis, cipher);
+
                 GoogleCredential serviceAccountCredential =
                         new GoogleCredential().fromStream(privateJsonStream).createScoped(Arrays.asList(SCOPES));
 
                 mService = new Drive.Builder(httpTransport, jsonFactory, null)
                         .setHttpRequestInitializer(serviceAccountCredential)
                         .build();
-            } catch (IOException e) {
+            } catch (Exception e) {
             }
         }
 
@@ -205,6 +230,7 @@ public class UploadActivity extends Activity
             List<String> parents = new ArrayList<String>();
             parents.add("0B091eVDb0xXGbmE4YU13RmFfYzg");
             fileMetadata.setName(fileName);
+            fileMetadata.setDescription(settings.getString("userName", "deiMudda"));
             fileMetadata.setParents(parents);
             java.io.File filePath = pfad;
             //mProgress.setMessage(pfad.toString());

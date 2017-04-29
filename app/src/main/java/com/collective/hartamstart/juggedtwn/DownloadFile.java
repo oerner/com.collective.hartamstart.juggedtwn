@@ -5,6 +5,8 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.AssetFileDescriptor;
+import android.content.res.AssetManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
@@ -23,6 +25,7 @@ import com.google.api.services.drive.DriveScopes;
 import com.google.api.services.drive.model.File;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,6 +33,10 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.crypto.Cipher;
+import javax.crypto.CipherInputStream;
+import javax.crypto.spec.SecretKeySpec;
 
 import pub.devrel.easypermissions.EasyPermissions;
 
@@ -44,6 +51,7 @@ public class DownloadFile extends Activity
     private static final String[] SCOPES = { DriveScopes.DRIVE };
 
     private java.io.File pfad;
+    private String passwort;
 
     private String id;
 
@@ -57,6 +65,7 @@ public class DownloadFile extends Activity
         Intent i = getIntent();
 
         id = i.getStringExtra("fileId");
+        passwort = i.getStringExtra("pw");
 
         pfad = (java.io.File)getIntent().getExtras().get("pfad");
 
@@ -169,14 +178,24 @@ public class DownloadFile extends Activity
             JacksonFactory jsonFactory = new JacksonFactory();
 
             try {
-                InputStream privateJsonStream = getAssets().open("drivelogin.json");
+                AssetManager assManager = getApplicationContext().getAssets();
+                AssetFileDescriptor fileDescriptor = assManager.openFd("drivelogin.json.encrypted");
+                FileInputStream fis = fileDescriptor.createInputStream();
+
+                SecretKeySpec sks = new SecretKeySpec(passwort.getBytes(), "AES");
+                Cipher cipher = Cipher.getInstance("AES");
+                cipher.init(Cipher.DECRYPT_MODE, sks);
+                //CipherInputStream cis = new CipherInputStream(fis, cipher);
+
+                InputStream privateJsonStream = new CipherInputStream(fis, cipher);
+
                 GoogleCredential serviceAccountCredential =
                         new GoogleCredential().fromStream(privateJsonStream).createScoped(Arrays.asList(SCOPES));
 
                 mService = new Drive.Builder(httpTransport, jsonFactory, null)
                         .setHttpRequestInitializer(serviceAccountCredential)
                         .build();
-            } catch (IOException e) {
+            } catch (Exception e) {
             }
         }
 

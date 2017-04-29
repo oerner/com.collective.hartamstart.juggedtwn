@@ -1,9 +1,14 @@
 package com.collective.hartamstart.juggedtwn;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
+import android.content.res.AssetFileDescriptor;
+import android.content.res.AssetManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Environment;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,19 +16,30 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+
+import javax.crypto.Cipher;
+import javax.crypto.CipherInputStream;
+import javax.crypto.CipherOutputStream;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.SecretKeySpec;
+
 public class MainMenu extends AppCompatActivity {
 
     private Button okButton;
     private EditText passwortFeld;
-    private String userPasswortGeholt;
-    private String adminPasswortGeholt;
-    private int userId = 0;
 
-    static final int ADMIN = 1;
+    private boolean richtigesPw = false;
+
+    private File storageDir;
+
     static final int USER = 2;
 
-
-    static final int GET_PASSWORD_FROM_DRIVE = 2000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,89 +50,109 @@ public class MainMenu extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         actionBar.setBackgroundDrawable(new ColorDrawable(Color.RED));
 
-        holePasswort();
+        storageDir = getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS);
+
         okButton = (Button) findViewById(R.id.okButton);
 
         passwortFeld = (EditText) findViewById(R.id.passwortFeld);
 
+        final Context context = this;
+
         okButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                passwortPruefen();
+                try {
+                    decrypt();
+                    /*
+                    ProgressDialog mProgress = new ProgressDialog(context);
+                    mProgress.setMessage("laaft");
+                    mProgress.show();
+                    */
+                }
+                catch (Exception e)
+                {
+                    richtigesPw = false;
+                    ProgressDialog mProgress = new ProgressDialog(context);
+                    mProgress.setMessage("Falsches Passwort!");
+                    mProgress.show();
+                }
+                hauptMenue();
             }
         });
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent intent){
-        super.onActivityResult(requestCode, resultCode, intent);
-        if(resultCode == RESULT_CANCELED)
-        {
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle(intent.getStringExtra("fehler"));
-            builder.show();
+
+    public void encrypt() throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
+        AssetManager assManager = getApplicationContext().getAssets();
+        AssetFileDescriptor fileDescriptor = assManager.openFd("drivelogin.json.encrypted");
+        FileInputStream fis = fileDescriptor.createInputStream();
+
+        File outputFile = File.createTempFile(
+                "encrypted.json",  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+        FileOutputStream fos = new FileOutputStream(outputFile);
+
+        // Length is 16 byte
+        // Careful when taking user input!!! http://stackoverflow.com/a/3452620/1188357
+        SecretKeySpec sks = new SecretKeySpec("".getBytes(), "AES");
+        // Create cipher
+        Cipher cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.ENCRYPT_MODE, sks);
+        // Wrap the output stream
+        CipherOutputStream cos = new CipherOutputStream(fos, cipher);
+        // Write bytes
+        int b;
+        byte[] d = new byte[8];
+        while((b = fis.read(d)) != -1) {
+            cos.write(d, 0, b);
         }
-        else if(resultCode == RESULT_OK)
-        {
-            String[] pws = intent.getStringArrayExtra("pw");
-            userPasswortGeholt = pws[0];
-            adminPasswortGeholt = pws[1];
-        }
+        // Flush and close streams.
+        cos.flush();
+        cos.close();
+        fis.close();
+        //decrypt();
     }
 
-    public void passwortPruefen()
-    {
-        String passwortGetippt = passwortFeld.getText().toString();
+    public void decrypt() throws IOException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeyException {
 
-        if(istGleich(passwortGetippt))
-        {
-            hauptMenue();
-        }
-        else
-        {
-            falschesPasswort();
-        }
-    }
+        AssetManager assManager = getApplicationContext().getAssets();
+        AssetFileDescriptor fileDescriptor = assManager.openFd("drivelogin.json.encrypted");
+        FileInputStream fis = fileDescriptor.createInputStream();
 
-    public void holePasswort()
-    {
-        Intent i = new Intent(this, GetPassword.class);
-        i.putExtra("art", GET_PASSWORD_FROM_DRIVE);
-        startActivityForResult(i, 1);
-    }
+        File jsonFile = File.createTempFile(
+                "drive",  /* prefix */
+                ".json",         /* suffix */
+                storageDir      /* directory */
+        );
 
-    public boolean istGleich(String getippt)
-    {
-        for(int i = 0; i < getippt.length(); i++)
-        {
-            if(getippt.charAt(i) != userPasswortGeholt.charAt(i+1))
-            {
-                for(int n = 0; n < getippt.length(); n++) {
-                    if (getippt.charAt(n) != adminPasswortGeholt.charAt(n + 1)) {
-                        return false;
-                    }
-                }
-                userId = ADMIN;
-                return true;
-            }
+        FileOutputStream fos = new FileOutputStream(jsonFile);
+        SecretKeySpec sks = new SecretKeySpec(passwortFeld.getText().toString().getBytes(), "AES");
+        Cipher cipher = Cipher.getInstance("AES");
+        cipher.init(Cipher.DECRYPT_MODE, sks);
+        CipherInputStream cis = new CipherInputStream(fis, cipher);
+        int b;
+        byte[] d = new byte[8];
+        while((b = cis.read(d)) != -1) {
+            fos.write(d, 0, b);
         }
-        userId = USER;
-        return true;
+        fos.flush();
+        fos.close();
+        cis.close();
+        richtigesPw = true;
+        boolean delete = jsonFile.delete();
     }
 
     public void hauptMenue()
     {
-        Intent intent = new Intent(this, Menue.class);
-        intent.putExtra("user", userId);
-        startActivity(intent);
-        finish();
-    }
-
-    public void falschesPasswort()
-    {
-        //Falsches Passwort Benachrichtigung
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Falsches Passwort!");
-        builder.show();
+        if(richtigesPw)
+        {
+            Intent intent = new Intent(this, Menue.class);
+            intent.putExtra("pw", passwortFeld.getText().toString());
+            intent.putExtra("user", USER);
+            startActivity(intent);
+            finish();
+        }
     }
 
     //Wahrscheinlich unnötig

@@ -37,6 +37,7 @@
                             android:id="@+id/datumButton"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:onClick="showDatePickerDialog"
                             android:textColor="@android:color/holo_red_dark"
                             android:background="@android:color/black" />
 

@@ -45,6 +45,7 @@ public class ProtokollFenster extends AppCompatActivity {
     boolean del;
 
     private String mCurrentPhotoPath;
+    private String passwort;
 
     private File fotFile;
 
@@ -61,15 +62,14 @@ public class ProtokollFenster extends AppCompatActivity {
         ActionBar actionBar = getSupportActionBar();
         actionBar.setBackgroundDrawable(new ColorDrawable(Color.RED));
 
-        userId = getIntent().getIntExtra("userid", 2);
+        Intent i = getIntent();
 
-
+        userId = i.getIntExtra("userid", 2);
+        passwort = i.getStringExtra("pw");
 
         liste = (TableLayout) findViewById(R.id.liste);
 
         addButton = (ImageButton) findViewById(R.id.imageButton);
-
-
         addButton.setOnClickListener(new View.OnClickListener() {
                                          @Override
                                          public void onClick(View v) {
@@ -139,7 +139,6 @@ public class ProtokollFenster extends AppCompatActivity {
                     }
                     catch (Exception e)
                     {
-                        // TODO: handle exception
                         String data = e.getMessage();
                     }
                 }
@@ -157,6 +156,10 @@ public class ProtokollFenster extends AppCompatActivity {
                     try {
                         ArrayList<String> namenListe = intent.getExtras().getStringArrayList("namenliste");
                         ArrayList<String> idListe = intent.getExtras().getStringArrayList("idliste");
+                        liste.removeAllViews();
+                        if(userId == ADMIN) {
+                            liste.addView(addButton);
+                        }
                         auflisten(namenListe, idListe);
                     }
                     catch(NullPointerException e)
@@ -168,9 +171,15 @@ public class ProtokollFenster extends AppCompatActivity {
                 }
                 else
                 {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                    builder.setTitle(intent.getStringExtra("fehler"));
-                    builder.show();
+                    try {
+                        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                        builder.setTitle(intent.getStringExtra("fehler"));
+                        builder.show();
+                    }
+                    catch (NullPointerException e)
+                    {
+
+                    }
                 }
         }
     }
@@ -196,6 +205,7 @@ public class ProtokollFenster extends AppCompatActivity {
     {
         Intent i = new Intent(this, DownloadFile.class);
         i.putExtra("fileId", id);
+        i.putExtra("pw", passwort);
         try
         {
             i.putExtra("pfad", createImageFile());
@@ -210,6 +220,7 @@ public class ProtokollFenster extends AppCompatActivity {
     {
         Intent i = new Intent(this, UploadActivity.class);
         i.putExtra("pfad", endgültigPfad);
+        i.putExtra("pw", passwort);
         i.putExtra("fertigerName", fertigName);
         startActivityForResult(i, UPLOAD_REQUEST);
     }
@@ -247,6 +258,7 @@ public class ProtokollFenster extends AppCompatActivity {
     public void holeListe()
     {
         Intent i = new Intent(this, HoleProtokolle.class);
+        i.putExtra("pw", passwort);
         startActivityForResult(i, REQUEST_LIST_HOLEN);
     }
 
